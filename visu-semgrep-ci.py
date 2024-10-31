@@ -82,11 +82,11 @@ def main():
     parser.add_argument('-c', '--cwe', action='store_true', help='List CWE vulnerabilities')
     parser.add_argument('-f', '--files', action='store_true', help='List files with vulnerabilities')
     parser.add_argument('-t', '--test', action='store_true', help='Test installation')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
+    # parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
 
     args = parser.parse_args()
 
-    print("Visu.")
+    # print("Visu.")
 
     if args.test:
         print("Installation successful.")
