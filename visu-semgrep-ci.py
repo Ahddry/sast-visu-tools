@@ -86,6 +86,8 @@ def main():
 
     args = parser.parse_args()
 
+    print("Visu.")
+
     if args.test:
         print("Installation successful.")
     elif args.file:
