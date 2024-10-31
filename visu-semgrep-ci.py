@@ -87,8 +87,8 @@ def summarize_findings(file_path, args):
             )
             vuln_class_table = [[k, v] for k, v in vuln_class_count.most_common()]
             vuln_class_table.append(SEPARATING_LINE)
-            vuln_class_table.append(["\033[1mTotal\033[0m", "\033[1m" + str(sum(vuln_class_count.values())) + "\033[0m"])
-            output_file.write("\nVulnerability class:")
+            vuln_class_table.append(["Total", sum(vuln_class_count.values())])
+            output_file.write("\nVulnerability classes:\n")
             output_file.write(tabulate(vuln_class_table, headers=["Vulnerability class", "Count"], tablefmt="simple"))
 
 def main():
