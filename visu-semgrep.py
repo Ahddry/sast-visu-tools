@@ -67,7 +67,11 @@ def summarize_findings(file_path, args):
 
     # Option -c : CWE vulnerabilities
     if args.cwe:
-        cwe_count = Counter(cwe for result in results for cwe in result["extra"]["metadata"].get("cwe", []))
+        cwe_count = Counter(
+            cwe
+            for result in results
+            for cwe in (result["extra"]["metadata"].get("cwe", []) if isinstance(result["extra"]["metadata"].get("cwe", []), list) else [result["extra"]["metadata"].get("cwe", [])])
+        )
         cwe_table = [[k, v] for k, v in cwe_count.items()]
         print("\n🧱 CWE:")
         print(tabulate(cwe_table, headers=["CWE", "Count"], tablefmt="rounded_outline"))
