@@ -78,12 +78,27 @@ def summarize_findings(file_path, args):
             output_file.write(tabulate(file_table, headers=["File", "Count"], tablefmt="simple") + "\n")
         print("\nResults summary saved to semgrep-results-summary.txt")
 
+        # Option -C : Vulnerability class
+        if args.vuln_class:
+            vuln_class_count = Counter(
+                vuln_class
+                for result in results
+                for vuln_class in result["extra"]["metadata"].get("vulnerability_class", [])
+            )
+            vuln_class_table = [[k, v] for k, v in vuln_class_count.most_common()]
+            vuln_class_table.append(SEPARATING_LINE)
+            vuln_class_table.append(["\033[1mTotal\033[0m", "\033[1m" + str(sum(vuln_class_count.values())) + "\033[0m"])
+            output_file.write("\nVulnerability class:")
+            output_file.write(tabulate(vuln_class_table, headers=["Vulnerability class", "Count"], tablefmt="simple"))
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('file', nargs='?', help='Semgrep report to visualise')
+    parser.add_argument('-a', '--all', action='store_true', help='Equivalent to -l -o -c -C -f')
     parser.add_argument('-l', '--languages', action='store_true', help='List impacted languages and technologies')
     parser.add_argument('-o', '--owasp', action='store_true', help='List OWASP Top 10 vulnerabilities')
     parser.add_argument('-c', '--cwe', action='store_true', help='List CWE vulnerabilities')
+    parser.add_argument('-C', '--vuln-class', action='store_true',  help='Vulnerability classes as per of Semgrep')
     parser.add_argument('-f', '--files', action='store_true', help='List files with vulnerabilities')
     parser.add_argument('-t', '--test', action='store_true', help='Test installation')
     # parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
@@ -94,6 +109,13 @@ def main():
 
     if args.test:
         print("Installation successful.")
+    elif args.all:
+        args.languages = True
+        args.owasp = True
+        args.cwe = True
+        args.vuln_class = True
+        args.files = True
+        summarize_findings(args.file, args)
     elif args.file:
         summarize_findings(args.file, args)
 
