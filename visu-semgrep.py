@@ -2,6 +2,9 @@ import argparse
 import json
 from tabulate import tabulate
 from collections import Counter
+import os
+import subprocess
+import signal
 
 # Usable emojis: 👁️🧱🔗🆘🚫❌⭕✅❎🆗🆕0️⃣1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣🔟▶️⏹️➡️⬇️🔣🔄🔴🟠🟡🟢🟥🟧🟨🟩🔺🔻📄🧾📁🎯🤖🛠️🔧⚙️💻🚀📢🚨🔥💥☢️⚡👾🔎💡⚠️💎
 
@@ -50,7 +53,7 @@ def summarize_findings(file_path, args):
 
     # Option -o : OWASP Top 10 vulnerabilities
     if args.owasp:
-        owasp_top_10 = [
+        owasp_top_10_2021 = [
             "A01:2021 - Broken Access Control",
             "A02:2021 - Cryptographic Failures",
             "A03:2021 - Injection",
@@ -62,10 +65,33 @@ def summarize_findings(file_path, args):
             "A09:2021 - Security Logging and Monitoring Failures",
             "A10:2021 - Server-Side Request Forgery (SSRF)"
         ]
-        owasp_count = Counter(owasp for result in results for owasp in result["extra"]["metadata"].get("owasp", []))
-        owasp_table = [[owasp, owasp_count.get(owasp, 0)] for owasp in owasp_top_10]
+        owasp_top_10_2017 = [
+            "A01:2017 - Injection",
+            "A02:2017 - Broken Authentication",
+            "A03:2017 - Sensitive Data Exposure",
+            "A04:2017 - XML External Entities (XXE)",
+            "A05:2017 - Broken Access Control",
+            "A06:2017 - Security Misconfiguration",
+            "A07:2017 - Cross-Site Scripting (XSS)",
+            "A08:2017 - Insecure Deserialization",
+            "A09:2017 - Using Components with Known Vulnerabilities",
+            "A10:2017 - Insufficient Logging & Monitoring"
+        ]
+        owasp_count = Counter()
+        for result in results:
+            for owasp in result["extra"]["metadata"].get("owasp", []):
+                # Normalize OWASP entries by replacing "-" with " - "
+                normalized_owasp = owasp.replace("2021-", "2021 - ").replace("2017-", "2017 - ").replace("A1", "A01").replace("A2", "A02").replace("A3", "A03").replace("A4", "A04").replace("A5", "A05").replace("A6", "A06").replace("A7", "A07").replace("A8", "A08").replace("A9", "A09")
+                owasp_count[normalized_owasp] += 1
+
+        owasp_table_2021 = [[owasp, owasp_count.get(owasp, 0)] for owasp in owasp_top_10_2021]
+        owasp_table_2017 = [[owasp, owasp_count.get(owasp, 0)] for owasp in owasp_top_10_2017 if owasp_count.get(owasp, 0) > 0]
+
+
         print("\n🔟 OWASP Top 10:")
-        print(tabulate(owasp_table, headers=["OWASP", "Count"], tablefmt="rounded_outline"))
+        if owasp_table_2017:
+            owasp_table_2021.extend(owasp_table_2017)
+        print(tabulate(owasp_table_2021, headers=["OWASP", "Count"], tablefmt="rounded_outline"))
 
     # Option -c : CWE vulnerabilities
     if args.cwe:
@@ -100,6 +126,24 @@ def summarize_findings(file_path, args):
         print("\n🎯 Vulnerability classes:")
         print(tabulate(vuln_class_table, headers=["Vulnerability class", "Count"], tablefmt="rounded_outline"))
 
+def display_web_viewer():
+    # Check if web viewer is installed in ./web-viewer
+    # If not, download it from GitHub.
+    # Install dependencies and launch the web viewer.
+    web_viewer_path = "./web-viewer"
+    #repo_url = "https://github.com/your-repo/web-viewer.git"
+
+    if not os.path.exists(web_viewer_path):
+        print("🚨 Web viewer not found. Cloning from GitHub...\n")
+        subprocess.run(["git", "clone", repo_url, web_viewer_path], check=True)
+
+    print("🔧 Installing dependencies...\n")
+    subprocess.run(["npm", "install"], cwd=web_viewer_path, check=True)
+
+    print("⚙️ Starting web viewer...\n")
+    process = subprocess.Popen(["npm", "run", "dev"], cwd=web_viewer_path)
+    print("✅ Web viewer started.\n ▶️ You can access it at http://localhost:3000 \n\nPress Ctrl+C to stop the web viewer.")
+
 def main():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('file', nargs='?', help='Semgrep report to visualise')
@@ -120,7 +164,8 @@ def main():
     if args.help or not args.file:
         display_help()
     elif args.web and args.file:
-        print("Web viewer not implemented yet.")
+        # display_web_viewer()
+        print("🚨 Web viewer not implemented yet.")
     elif args.all:
         args.languages = True
         args.owasp = True

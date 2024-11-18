@@ -38,7 +38,7 @@ def summarize_findings(file_path, args):
 
         # Option -o : OWASP Top 10 vulnerabilities
         if args.owasp:
-            owasp_top_10 = [
+            owasp_top_10_2021 = [
                 "A01:2021 - Broken Access Control",
                 "A02:2021 - Cryptographic Failures",
                 "A03:2021 - Injection",
@@ -50,10 +50,31 @@ def summarize_findings(file_path, args):
                 "A09:2021 - Security Logging and Monitoring Failures",
                 "A10:2021 - Server-Side Request Forgery (SSRF)"
             ]
+            owasp_top_10_2017 = [
+                "A01:2017 - Injection",
+                "A02:2017 - Broken Authentication",
+                "A03:2017 - Sensitive Data Exposure",
+                "A04:2017 - XML External Entities (XXE)",
+                "A05:2017 - Broken Access Control",
+                "A06:2017 - Security Misconfiguration",
+                "A07:2017 - Cross-Site Scripting (XSS)",
+                "A08:2017 - Insecure Deserialization",
+                "A09:2017 - Using Components with Known Vulnerabilities",
+                "A10:2017 - Insufficient Logging & Monitoring"
+            ]
             owasp_count = Counter(owasp for result in results for owasp in result["extra"]["metadata"].get("owasp", []))
-            owasp_table = [[owasp, owasp_count.get(owasp, 0)] for owasp in owasp_top_10]
+            for result in results:
+                for owasp in result["extra"]["metadata"].get("owasp", []):
+                    # Normalize OWASP entries by replacing "-" with " - "
+                    normalized_owasp = owasp.replace("2021-", "2021 - ").replace("2017-", "2017 - ").replace("A1", "A01").replace("A2", "A02").replace("A3", "A03").replace("A4", "A04").replace("A5", "A05").replace("A6", "A06").replace("A7", "A07").replace("A8", "A08").replace("A9", "A09")
+                    owasp_count[normalized_owasp] += 1
+                    owasp_table_2021 = [[owasp, owasp_count.get(owasp, 0)] for owasp in owasp_top_10_2021]
+            owasp_table_2017 = [[owasp, owasp_count.get(owasp, 0)] for owasp in owasp_top_10_2017 if owasp_count.get(owasp, 0) > 0]
             output_file.write("\nOWASP Top 10:\n")
-            output_file.write(tabulate(owasp_table, headers=["OWASP", "Count"], tablefmt="simple") + "\n")
+            if owasp_table_2017:
+                owasp_table_2021.append(SEPARATING_LINE)
+                owasp_table_2021.extend(owasp_table_2017)
+            output_file.write(tabulate(owasp_table_2021, headers=["OWASP", "Count"], tablefmt="simple") + "\n")
 
         # Option -c : CWE vulnerabilities
         if args.cwe:
