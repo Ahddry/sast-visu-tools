@@ -154,7 +154,7 @@ if len(sys.argv) == 3:
 elif len(sys.argv) == 2:
     scan_path = sys.argv[1]
 else:
-    scan_path = ".."
+    scan_path = "."
 
 # Change to the target directory and run semgrep scan
 os.chdir(target_dir)
