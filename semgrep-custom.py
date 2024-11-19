@@ -153,7 +153,7 @@ else:
     scan_path = "."
 
 # Run semgrep scan
-subprocess.run(["semgrep", "scan","-q" , "--config", "auto", "--config", ".", "--json", "-o", "semgrep-report.json", scan_path])
+subprocess.run(["semgrep", "scan","-q" , "--config", "auto", "--config", rules_file, "--json", "-o", "semgrep-report.json", scan_path])
 
 # Execute the visu-semgrep script
 try:
