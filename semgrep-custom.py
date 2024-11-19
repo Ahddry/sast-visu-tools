@@ -1,4 +1,3 @@
-import os
 import sys
 import subprocess
 from datetime import datetime
@@ -71,6 +70,7 @@ def summarize_findings(file_path):
             "A10:2017 - Insufficient Logging & Monitoring"
         ]
         owasp_count = Counter(owasp for result in results for owasp in result["extra"]["metadata"].get("owasp", []))
+        owasp_table_2021 = [[]]
         for result in results:
             for owasp in result["extra"]["metadata"].get("owasp", []):
                 # Normalize OWASP entries by replacing "-" with " - "
@@ -115,6 +115,8 @@ def summarize_findings(file_path):
         output_file.write(tabulate(vuln_class_table, headers=["Vulnerability class", "Count"], tablefmt="simple"))
         print("\nResults summary saved to semgrep-results-summary.txt")
 
+print("Starting custom semgrep scan...")
+
 # Get the current date and time
 current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
@@ -126,15 +128,9 @@ elif len(sys.argv) == 2:
 else:
     target_dir = f"./{current_datetime}_semgrep-report"
 
-# Create the directory
-os.makedirs(target_dir, exist_ok=True)
-if not os.path.isdir(target_dir):
-    print(f"Error: Failed to create directory {target_dir}")
-    sys.exit(1)
-
 # Download the patched-codes-semgrep-rules.yml file
 rules_url = "https://raw.githubusercontent.com/patched-codes/semgrep-rules/refs/heads/main/patched-codes-semgrep-rules.yml"
-rules_file = os.path.join(target_dir, "patched-codes-semgrep-rules.yml")
+rules_file = "patched-codes-semgrep-rules.yml"
 response = requests.get(rules_url)
 if response.status_code == 200:
     with open(rules_file, 'wb') as file:
@@ -156,19 +152,8 @@ elif len(sys.argv) == 2:
 else:
     scan_path = "."
 
-# Change to the target directory and run semgrep scan
-os.chdir(target_dir)
-path_start_with_slash = scan_path.startswith("/")
-if path_start_with_slash:
-    subprocess.run(["semgrep", "scan","-q" , "--config", "auto", "--config", ".", "--json", "-o", "semgrep-report.json", scan_path])
-else:
-    subprocess.run(["semgrep", "scan","-q" , "--config", "auto", "--config", ".", "--json", "-o", "semgrep-report.json", "../" + scan_path])
-if not os.path.isfile("semgrep-report.json"):
-    print("Error: Failed to create semgrep-report.json")
-    sys.exit(1)
-
-# Delete the yaml config file
-os.remove("patched-codes-semgrep-rules.yml")
+# Run semgrep scan
+subprocess.run(["semgrep", "scan","-q" , "--config", "auto", "--config", ".", "--json", "-o", "semgrep-report.json", scan_path])
 
 # Execute the visu-semgrep script
 try:

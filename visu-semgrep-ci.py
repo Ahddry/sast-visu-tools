@@ -63,6 +63,7 @@ def summarize_findings(file_path, args):
                 "A10:2017 - Insufficient Logging & Monitoring"
             ]
             owasp_count = Counter(owasp for result in results for owasp in result["extra"]["metadata"].get("owasp", []))
+            owasp_table_2021 = [[]]
             for result in results:
                 for owasp in result["extra"]["metadata"].get("owasp", []):
                     # Normalize OWASP entries by replacing "-" with " - "
