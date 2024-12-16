@@ -167,3 +167,4 @@ cython_debug/
 
 # webapp
 web-viewer
+parsed_file.json
