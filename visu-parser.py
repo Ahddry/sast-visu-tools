@@ -185,8 +185,9 @@ def process_new_report_results(report: Dict[str, Any], previous_report: Dict[str
         existing_result = next((prev_result for prev_result in previous_report['report']['results'] if compare_results(prev_result, result)), None)
         result['new'] = not existing_result
         if existing_result:
-            result['extra']['first_seen'] = existing_result['extra']['first_seen']
-            result['extra']['first_seen_report_number'] = existing_result['extra']['first_seen_report_number']
+            if existing_result['extra']['first_seen']:
+                result['extra']['first_seen'] = existing_result['extra']['first_seen']
+            result['extra']['first_seen_report_number'] = existing_result['extra'].get('first_seen_report_number', report['report_number'] - 1)
             if existing_result['extra']['is_ignored']:
                 result['extra']['is_ignored'] = True
     print("Results processed, calculating new, fixed, and ignored findings")
@@ -227,7 +228,7 @@ def upload_report_to_mongodb(report: Dict[str, Any]):
             print(f"Failed to get previous report from MongoDB: {e}")
             sys.exit(1)
         report_to_upload = process_new_report_results(report, previous_report)
-        collection.insert_one(report_to_upload)
+        # collection.insert_one(report_to_upload)
         print("Report uploaded to MongoDB")
     except Exception as e:
         print(f"Failed to upload report to MongoDB: {e}")
