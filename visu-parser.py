@@ -286,6 +286,20 @@ def upload_report_to_mongodb(report: Dict[str, Any]):
         # NOTE: For debugging purposes, comment the next line to avoid uploading the report to MongoDB
         collection.insert_one(report_to_upload)
         print("Report uploaded to MongoDB")
+        try:
+            project = client["visu"]["projects"].find_one({"id": int(project_id)}, {"_id": 0})
+            project['reports'].append({
+                "high": report_to_upload['high'],
+                "medium": report_to_upload['medium'],
+                "low": report_to_upload['low'],
+                "fixed": report_to_upload['fixed'],
+                "ignored": report_to_upload['ignored'],
+                "report_number": report_to_upload['report_number']
+            })
+            client["visu"]["projects"].update_one({"id": int(project_id)}, {"$set": {"reports": project['reports']}})
+            print("Project data updated in MongoDB")
+        except Exception as e:
+            print(f"Failed to update project data in MongoDB: {e}")
     except Exception as e:
         print(f"Failed to upload report to MongoDB: {e}")
 
