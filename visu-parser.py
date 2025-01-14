@@ -236,9 +236,9 @@ def process_new_report_results(report: Dict[str, Any], previous_report: Dict[str
                 result['state'] = existing_result['state']
             else:
                 result['state'] = "To qualify"
-            if existing_result['previous_state']:
+            if 'previous_state' in existing_result:
                 result['previous_state'] = existing_result['previous_state']
-            if existing_result['comments']:
+            if 'comments' in existing_result:
                 result['comments'] = existing_result['comments']
     print("Results processed, calculating new, fixed, and ignored findings")
     # Calculate new, fixed, and ignored findings
