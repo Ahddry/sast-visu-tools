@@ -246,6 +246,7 @@ def process_new_report_results(report: Dict[str, Any], previous_report: Dict[str
     new_fixed_findings = [result for result in previous_report['results'] if not next((new_result for new_result in report['results'] if compare_results(new_result, result)), None)]
     for finding in new_fixed_findings:
         finding['new'] = False
+        finding['previous_state'] = finding['state']
         finding["state"] = "Fixed on " + report['date_time'] + " in report " + str(report['report_number'])
     fixed_findings = previous_fixed_findings + new_fixed_findings
     report_to_upload = {
