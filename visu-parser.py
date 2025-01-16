@@ -248,6 +248,26 @@ def process_new_report_results(report: Dict[str, Any], previous_report: Dict[str
         finding['new'] = False
         finding['previous_state'] = finding['state']
         finding["state"] = "Fixed on " + report['date_time'] + " in report " + str(report['report_number'])
+        if 'comments' in finding:
+            finding['comments'].append({
+                "author": "CI/CD",
+                "author_id": "github-actions",
+                "comment": "Finding has been fixed on " + report['date_time'] + " in report " + str(report['report_number']) + ".",
+                "date": report['date_time'],
+                "from": finding['previous_state'],
+                "to": "Fixed",
+                "type": "auto_comment"
+            })
+        else:
+            finding['comments'] = [{
+                "author": "CI/CD",
+                "author_id": "github-actions",
+                "comment": "Finding has been fixed on " + report['date_time'] + " in report " + str(report['report_number']) + ".",
+                "date": report['date_time'],
+                "from": finding['previous_state'],
+                "to": "Fixed",
+                "type": "auto_comment"
+            }]
     fixed_findings = previous_fixed_findings + new_fixed_findings
     report_to_upload = {
         "date_time": report['date_time'],
