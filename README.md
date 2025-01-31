@@ -17,12 +17,11 @@ python3 visu-semgrep.py --all <path_to_semgrep_report.json>
 ./visu-semgrep.sh --all <path_to_semgrep_report.json>
 ```
 
-> [!NOTE]
-> The `-a` or `--all` will execute all the available options. If you want to get a list of the available options, you can use the `-h` or `--help` flag.
+> ℹ️ Note: The `-a` or `--all` will execute all the available options. If you want to get a list of the available options, you can use the `-h` or `--help` flag.
 
 ### 1.3 Example
 
-![Example](./images/visu-semgrep_example.png)
+![visu-semgrep Example](./images/visu-semgrep_example.png)
 
 ## 2. visu-semgrep-ci
 
@@ -39,12 +38,11 @@ python3 visu-semgrep-ci.py --all <path_to_semgrep_report.json> <output_file>
 ./visu-semgrep-ci.sh --all <path_to_semgrep_report.json> <output_file>
 ```
 
-> [!NOTE]
-> The `-a` or `--all` will execute all the available options. If you want to get a list of the available options, you can use the `-h` or `--help` flag.
+> ℹ️ Note: The `-a` or `--all` will execute all the available options. If you want to get a list of the available options, you can use the `-h` or `--help` flag.
 
 ### 2.3. Example
 
-<!-- TODO: Add example -->
+![visu-semgrep-ci Example](./images/visu-semgrep-ci_example.png)
 
 ## 3. semgrep-custom
 
