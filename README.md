@@ -19,6 +19,10 @@ python3 visu-semgrep.py --all <path_to_semgrep_report.json>
 
 > ℹ️ Note: The `-a` or `--all` will execute all the available options. If you want to get a list of the available options, you can use the `-h` or `--help` flag.
 
+#### Available options
+
+![visu-semgrep help](./images/visu-semgrep_help.png)
+
 ### 1.3 Example
 
 ![visu-semgrep Example](./images/visu-semgrep_example.png)
@@ -40,7 +44,7 @@ python3 visu-semgrep-ci.py --all <path_to_semgrep_report.json> <output_file>
 
 > ℹ️ Note: The `-a` or `--all` will execute all the available options. If you want to get a list of the available options, you can use the `-h` or `--help` flag.
 
-### 2.3. Example
+### 2.3. Example output
 
 ![visu-semgrep-ci Example](./images/visu-semgrep-ci_example.png)
 
@@ -90,7 +94,7 @@ jobs:
 
 ### 4.1. Description
 
-A tool that reads a semgrep-report json file or a sarif report file from a SAST tool, parse it as a normalised json file and sends if possible the report to a NOSQL MongoDB database. It is designed to be used in a CI/CD pipeline.
+A tool that reads a semgrep-report json file or a sarif report file from a SAST tool, parse it as a normalised json file and sends if possible the report to a NoSQL MongoDB database. It is designed to be used in a CI/CD pipeline.
 
 ### 4.2. Usage
 
