@@ -1,10 +1,49 @@
+import hashlib
 import sys
 import subprocess
 from datetime import datetime
+from typing import Any, Dict
 import requests
 import json
 from tabulate import tabulate, SEPARATING_LINE
 from collections import Counter
+
+# See `get_match_based_id` function from Semgrep source code (cli/src/semgrep/rule_match.py)
+def get_fingerprint(result: Dict[str, Any]) -> str:
+    match_id_str = str(tuple(["", result.get("path"), result.get("check_id")]))
+    return f"{hashlib.blake2b(str.encode(match_id_str)).hexdigest()}_{str(0)}"
+
+def get_lines_from_file(path: str, start: int, end: int) -> str:
+    if start == -1 and end == 0:
+        return ""
+    with open(path, 'r') as file:
+        lines = file.readlines()
+    if not end:
+        return "".join(lines[start - 1]).rstrip()
+    else:
+        return "".join(lines[start - 1:end]).rstrip()
+
+def fix_semgrep_report():
+    with open("semgrep-report.json", "r") as file:
+        data = json.load(file)
+        results = data.get("results", [])
+        for result in results:
+            if result['extra'].get('fingerprint') == "requires login":
+                try:
+                    result['extra']['fingerprint'] = get_fingerprint(result)
+                except Exception as e:
+                    print("Failed to generate fingerprint for result: " + str(result['check_id'] + " - " + result['path']))
+                    print(e)
+                    sys.exit(1)
+            if result['extra'].get('lines') == "requires login":
+                try:
+                    result['extra']['lines'] = get_lines_from_file(result.get('path'), result['start'].get("line"), result['end'].get("line"))
+                except Exception as e:
+                    print("Failed to get lines for result: " + str(result['check_id'] + " - " + result['path']))
+                    print(e)
+    with open("semgrep-report.json", "w") as file:
+        json.dump(data, file, indent=4)
+
 
 def summarize_findings(file_path):
     with open(file_path, 'r') as file:
@@ -154,6 +193,9 @@ else:
 
 # Run semgrep scan
 subprocess.run(["semgrep", "scan","-q" , "--config", "auto", "--config", rules_file, "--json", "-o", "semgrep-report.json", scan_path])
+
+# Fix content of semgrep-report.json
+fix_semgrep_report()
 
 # Execute the visu-semgrep script
 try:
