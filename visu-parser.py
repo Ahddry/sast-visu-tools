@@ -1,3 +1,4 @@
+import hashlib
 import json
 import sys
 from typing import List, Dict, Any
@@ -187,10 +188,24 @@ def save_report(report: Dict[str, Any]):
     with open("parsed_file.json", 'w') as file:
         json.dump(report, file, indent=4)
 
+# See `get_match_based_id` function from Semgrep source code (cli/src/semgrep/rule_match.py)
+def get_fingerprint(result: Dict[str, Any]) -> str:
+    match_id_str = str(tuple(["", result.get("path"), result.get("check_id")]))
+    return f"{hashlib.blake2b(str.encode(match_id_str)).hexdigest()}_{str(0)}"
+
 def process_new_report_results(report: Dict[str, Any], previous_report: Dict[str, Any]):
     print("Processing new report results")
     for result in report['results']:
         result['severity'] = result['severity'].replace("ERROR", "High").replace("WARNING", "Medium").replace("INFO", "Low")
+        if result['extra'].get('fingerprint') == "requires login":
+            try:
+                result['extra']['fingerprint'] = get_fingerprint(result)
+            except Exception as e:
+                print("Failed to generate fingerprint for result: " + str(result['check_id'] + " - " + result['path']))
+                print(e)
+                sys.exit(1)
+        if result['extra'].get('lines') == "requires login":
+            result['extra']['lines'] = "Unable to retrieve lines from the file."
 
         # Normalize CWE and OWASP tags
         if isinstance(result['metadata']['owasp'], list):
@@ -227,6 +242,9 @@ def process_new_report_results(report: Dict[str, Any], previous_report: Dict[str
         existing_result = next((prev_result for prev_result in previous_report['results'] if compare_results(prev_result, result)), None)
         result['new'] = not existing_result
         if existing_result:
+            result['severity'] = existing_result['severity']
+            if existing_result['extra']['lines'] != "Unable to retrieve lines from the file.":
+                result['extra']['lines'] = existing_result['extra']['lines']
             if existing_result['first_seen']:
                 result['first_seen'] = existing_result['first_seen']
             result['first_seen_report_number'] = existing_result.get('first_seen_report_number', report['report_number'] - 1)
