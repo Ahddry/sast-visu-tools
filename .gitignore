@@ -163,6 +163,7 @@ cython_debug/
 .vscode/
 
 # output files
+dist.sh
 *.zip
 *.txt
 !requirements.txt
