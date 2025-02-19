@@ -163,7 +163,9 @@ cython_debug/
 .vscode/
 
 # output files
+*.zip
 *.txt
+!requirements.txt
 
 # webapp
 web-viewer

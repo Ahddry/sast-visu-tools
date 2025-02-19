@@ -1,8 +1,8 @@
 FROM python:3.10-slim
 
 # Set environment variables
-ENV VISU_SEMGREP_CI_URL="https://github.com/Ahddry/sast-visu-tools/releases/download/0.3.2/visu-semgrep-ci"
-ENV SEMGREP_CUSTOM_URL="https://github.com/Ahddry/sast-visu-tools/releases/download/0.3.2/semgrep-custom"
+ENV VISU_SEMGREP_CI_URL="https://github.com/Ahddry/sast-visu-tools/releases/download/0.4.0/visu-semgrep-ci"
+ENV SEMGREP_CUSTOM_URL="https://github.com/Ahddry/sast-visu-tools/releases/download/0.4.0/semgrep-custom"
 
 # Install wget and other dependencies
 RUN apt-get update && apt-get install -y wget
