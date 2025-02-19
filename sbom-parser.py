@@ -29,7 +29,6 @@ def upload_report(sbom_file_path: str, sca_file_path: str):
             report['date_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             if sca_report_content:
                 sca_reports = [json.loads(line) for line in sca_report_content.strip().split('\n')]
-                print(sca_reports)
                 if len(sca_reports) > 0:
                     for sca_report in sca_reports:
                         sca_report['severity'] = sca_report['severity'].replace("CRITICAL", "Critical").replace("HIGH", "High").replace("MEDIUM", "Medium").replace("LOW", "Low")
